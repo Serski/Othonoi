@@ -25,7 +25,8 @@ Each chapter is the same week, Monday to Sunday, and ends with the open studio o
 - **The map.** The island is drawn after its real coastline, with its villages, roads, footpaths and landmarks. Tap a place to see how long it takes to get there. Walking times are close to the real ones: the old stone path from Ammos up to Chorio takes about an hour.
 - **The day.** The clock runs from eight in the morning to midnight, and only moves while you are doing something or going somewhere. Activities take time and energy, and give you ideas, materials, sounds or swims.
 - **Eating.** Lunch and dinner at the taverna in Ammos, or cook at the house with food from the shop, or take a picnic. Miss a meal and everything tires you more. The money is a week’s budget, not a fortune.
-- **Heat.** In the afternoons the sun costs you energy, unless you have swum recently or bought a hat.
+- **The shop and your bag.** The shop in Ammos sells food, straw hats, ice cream and postcards. What you buy goes in your rucksack, which has eight places and its own tab, and so does anything you pick up. At the house you can leave food on the kitchen shelf, and cooking uses that first.
+- **Heat.** In the afternoons the sun costs you energy, unless you have swum recently, eaten an ice cream or bought a hat.
 - **Getting about.** You walk. Dionysis will give you one lift a day. Aspri Ammos and the cave can only be reached by boat from Ammos, in the morning, and the boat comes back for you until six.
 - **Stories.** The first time you go to a landmark, the island tells you about it. Where a story is local tradition rather than record, the game says so. Stories become what the installation is about, or the verses of the song.
 - **Dionysis.** He shows you the island on the first day, eats at the taverna on some evenings, comes to see how you are doing on Thursday, and knows a great deal.

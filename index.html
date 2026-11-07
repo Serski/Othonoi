@@ -231,9 +231,28 @@ canvas, .pix { image-rendering: crisp-edges; image-rendering: pixelated; }
 .facts li { padding: 10px 12px; background: var(--glaze-2); border-left: 3px solid var(--gold); font-size: 14px; }
 .facts b { display: block; margin-bottom: 3px; font: 600 14px/1.2 var(--font-pixel); color: var(--gold); }
 
+/* the shop, and your bag */
+.trades { display: grid; margin-top: 4px; }
+.trade { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 4px 10px; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--line-soft); }
+.ti { width: 30px; height: 30px; display: grid; place-items: center; }
+.ti svg { width: 22px; height: 22px; shape-rendering: crispEdges; }
+.trade .tn { font: 500 15px/1.15 var(--font-pixel); min-width: 0; }
+.trade .tn small { display: block; margin-top: 2px; font: 400 12px/1.3 var(--font-pixel); color: var(--bone-dim); }
+.trade .tb { display: flex; gap: 8px; align-items: center; }
+.trade .pr { font: 700 15px/1 var(--font-pixel); color: var(--gold); font-variant-numeric: tabular-nums; min-width: 32px; text-align: right; }
+.trade .btn { min-width: 58px; padding: 8px 10px; }
+.slots { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 5px; margin: 14px 0 8px; }
+.slot { aspect-ratio: 1; display: grid; place-items: center; border: 2px solid var(--line); background: var(--glaze-2); box-shadow: inset 2px 2px 0 rgba(0, 0, 0, 0.3); }
+.slot svg { width: 64%; height: 64%; shape-rendering: crispEdges; }
+.items { display: grid; }
+.item { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 2px 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line-soft); }
+.item .ti { grid-row: span 2; }
+.item .in { font: 600 15px/1.2 var(--font-pixel); }
+.item .id { font: 400 12px/1.3 var(--font-pixel); color: var(--bone-dim); }
+
 /* ---------- tabs ---------- */
 .tabs {
-  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); background: var(--glaze-2); border-top: 2px solid var(--line);
+  display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); background: var(--glaze-2); border-top: 2px solid var(--line);
   padding-bottom: env(safe-area-inset-bottom, 0px); padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px);
 }
 .tabs button {
@@ -366,6 +385,7 @@ canvas, .pix { image-rendering: crisp-edges; image-rendering: pixelated; }
   <nav class="tabs" id="tabs" role="tablist" aria-label="Notebook">
     <button type="button" role="tab" data-tab="here" id="tab-here"><span class="ic" data-icon="here"></span><span>Here</span><span class="dot" hidden></span></button>
     <button type="button" role="tab" data-tab="map" id="tab-map"><span class="ic" data-icon="map"></span><span>Map</span><span class="dot" hidden></span></button>
+    <button type="button" role="tab" data-tab="bag" id="tab-bag"><span class="ic" data-icon="bag"></span><span>Bag</span><span class="dot" hidden></span></button>
     <button type="button" role="tab" data-tab="work" id="tab-work"><span class="ic" id="workIcon"></span><span id="workLabel">Work</span><span class="dot" hidden></span></button>
     <button type="button" role="tab" data-tab="journal" id="tab-journal"><span class="ic" data-icon="journal"></span><span>Journal</span><span class="dot" hidden></span></button>
   </nav>
@@ -394,8 +414,18 @@ const PX_KM = 270;                     // map units to a kilometre (the map is d
 const KMH = { road: 4, path: 3.2, steep: 2, car: 24 };
 const DRAIN = { road: 7, path: 9, steep: 12 };   // energy an hour, walking
 const BEND = { road: 1.15, path: 1.25, steep: 1.25 };   // roads and paths bend more than the map shows
-const PRICE = { taverna: 15, coffee: 3, food: 6, hat: 8, boat: 20, postcard: 1, rescue: 15 };
+const PRICE = { taverna: 15, coffee: 3, food: 6, hat: 8, icecream: 3, boat: 20, postcard: 1, rescue: 15 };
 const MONEY = 150;
+const BAG_SIZE = 8;   // places in your rucksack
+// What the shop in Ammos sells. Food and postcards go in your bag; the hat goes on your head; the ice cream goes nowhere for long.
+const SHOP = {
+  food: { name: 'Bread, tomatoes, cheese and eggs', sub: 'One meal: cook it at the house, or take it on a picnic.', price: PRICE.food, icon: 'food', bag: true },
+  hat: { name: 'A straw hat', sub: 'The afternoon heat costs you less.', price: PRICE.hat, icon: 'hat', once: s => s.hat },
+  icecream: { name: 'An ice cream', sub: 'Eaten on the step outside. It cools you down for an hour.', price: PRICE.icecream, icon: 'ice' },
+  postcard: { name: 'A postcard', sub: 'The harbour from the air, in colours slightly bluer than real.', price: PRICE.postcard, icon: 'postcard', bag: true, once: s => s.keep.postcard },
+};
+const SHOP_LINES = ['“Hats are over there,” said the woman behind the counter. “They all fit, more or less.”', '“The bread is from yesterday,” she said. “Tomorrow it will be from today.”',
+  '“The ice cream is in the freezer by the door,” she said. “Shut the lid, or it all melts and I cry.”', '“You’re the artist,” she said. “At Kalogerou. Dionysis told me. Dionysis tells everybody everything.”'];
 const LUNCH = [12, 17], DINNER = [19, 24], HEAT = [12, 17];
 const WEEK = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 const FERRY_DAYS = [1, 3, 5, 7];
@@ -602,6 +632,7 @@ function newGame(seed) {
 }
 function migrate(s) {
   if (!s || s.v !== VERSION) return null;
+  if (s.ch && s.pantry == null) { s.pantry = 0; s.shopOpen = false; }   // saved before there was a kitchen shelf
   return s;
 }
 function startChapter(s, ch) {
@@ -609,7 +640,7 @@ function startChapter(s, ch) {
   for (const k of Object.keys(s)) delete s[k];
   Object.assign(s, keep, {
     ch, phase: 'day', day: 1, clock: 11, place: 'ammos', started: true,
-    energy: 85, eur: MONEY, ideas: 0, food: 0, hat: false,
+    energy: 85, eur: MONEY, ideas: 0, food: 0, pantry: 0, hat: false, shopOpen: false,
     ate: { lunch: false, dinner: false }, hungry: false, coolUntil: -1, liftDay: 0, boatDay: 0, stranded: false,
     tour: 0, visited: { ammos: 1 }, seen: {}, unlocked: {}, facts: [], count: {}, daily: {}, flags: {},
     busy: null, travel: null, pending: null, outcome: null, night: null, finale: null, summary: null,
@@ -774,12 +805,9 @@ const ACTS = [
   { id: 'coffee', where: at('ammos'), label: 'A coffee at the café', sub: `A Greek coffee and a glass of water. ${PRICE.coffee} €.`, hours: 0.5, eur: PRICE.coffee, drain: -14, pose: 'sit', out: false, icon: 'coffee',
     need: window_(8, 21, 'The café has closed for the night.'),
     done: s => { gainIdeas(s, todayN(s, 'coffee') ? 0 : 2); markToday(s, 'coffee'); return [bump(s, 'coffee') === 1 ? 'A Greek coffee, thick and sweet, in a small cup, with a glass of water. You watched the harbour do very little.' : 'Another coffee. The harbour was doing even less than before, and doing it well.']; } },
-  { id: 'groceries', where: at('ammos'), label: 'Buy food at the shop', sub: `Bread, tomatoes, cheese and eggs: one meal at the house, or a picnic. ${PRICE.food} €.`, hours: 0.25, eur: PRICE.food, drain: 0, pose: 'stand', out: false, icon: 'food',
-    need: window_(8, 21, 'The shop is shut.'), done: s => { s.food++; return [`You bought bread, tomatoes, cheese and eggs. ${s.food > 1 ? 'You had food for ' + num(s.food) + ' meals now.' : 'Enough for one meal.'}`]; } },
-  { id: 'hat', where: at('ammos'), label: 'Buy a sun hat', sub: `A straw hat, for the afternoons. ${PRICE.hat} €.`, hours: 0.1, eur: PRICE.hat, drain: 0, pose: 'stand', out: false, icon: 'hat',
-    show: s => !s.hat, need: window_(8, 21, 'The shop is shut.'), done: s => { s.hat = true; return ['A straw hat. It made you look like somebody on holiday, which was the idea. The afternoon heat will cost you less now.']; } },
-  { id: 'postcard', where: at('ammos'), label: 'Buy a postcard', sub: `The harbour, from the air, in colours slightly bluer than real. ${PRICE.postcard} €.`, hours: 0.1, eur: PRICE.postcard, drain: 0, pose: 'stand', out: false, icon: 'postcard',
-    show: s => s.ch === 'beach' && !s.keep.postcard, need: window_(8, 21, 'The shop is shut.'), done: s => { s.keep.postcard = true; return ['You bought a postcard. You did not know who you would send it to, which is the best kind of postcard.']; } },
+  { id: 'shop', where: at('ammos'), label: 'Go into the shop', sub: 'Food for picnics and the kitchen, straw hats, ice cream, postcards.', hours: 0.25, drain: 0, pose: 'stand', out: false, icon: 'food',
+    need: window_(8, 21, 'The shop is shut. It opens at eight in the morning.'),
+    done: s => { s.shopOpen = true; return [bump(s, 'shopTalk') === 1 ? 'The shop was small and cool, and sold everything: bread, tomatoes, fishing line, batteries, hats, ice cream, and a postcard of the harbour from the air.' : 'The shop again. The woman behind the counter said hello as if you had been coming in for years.']; } },
   { id: 'swim_ammos', where: at('ammos'), label: 'Swim off the harbour beach', sub: 'Clear to the bottom, and right by the café.', hours: 1, drain: 2, pose: 'swim', out: false, icon: 'swim',
     need: window_(7, 21, 'It is too dark to swim, and the fish are asleep.'),
     done: s => { const f = swimHere(s, 'ammos'); return [f ? 'The water off the harbour beach was clear to the bottom. Small fish came to look at you, and decided you were not food.' : 'A swim off the harbour beach. Cool, and then cooler.']; } },
@@ -800,9 +828,9 @@ const ACTS = [
   // ---- Kalogerou ----
   { id: 'sleep', where: at('kalogerou'), label: 'Go to bed', sub: 'The bed is the coolest place in the house, after midnight.', hours: 0, primary: true, pose: 'stand', icon: 'bed', out: false,
     show: s => s.clock >= 21 && !(s.day === 1 && s.tour < 7) && s.day < LAST_DAY, done: s => { goToSleep(s, 'kalogerou'); return []; } },
-  { id: 'cook', where: at('kalogerou'), label: 'Cook in the kitchen', sub: s => s.food ? `You have food for ${num(s.food)} meal${s.food > 1 ? 's' : ''}.` : 'There is nothing in the kitchen. The shop in Ammos sells food.', hours: 1, drain: -24, pose: 'eat', out: false, icon: 'cook',
-    need: s => { const m = mealNow(s.clock); return !s.food ? 'There is no food in the house. The shop is in Ammos.' : !m ? 'It is not a mealtime. Lunch is from twelve, dinner from seven.' : s.ate[m] ? `You have had ${m} already.` : ''; },
-    done: s => { s.food--; meal(s, 'home'); return [bump(s, 'cook') === 1 ? 'You cooked eggs and tomatoes, and ate them on the veranda with bread, looking at the olive trees.' : 'You cooked something that was mostly tomatoes. It was very good.']; } },
+  { id: 'cook', where: at('kalogerou'), label: 'Cook in the kitchen', sub: s => s.pantry + s.food ? `Food for ${num(s.pantry + s.food)} meal${s.pantry + s.food > 1 ? 's' : ''}: ${s.pantry} on the kitchen shelf, ${s.food} in your bag.` : 'There is nothing in the kitchen. The shop in Ammos sells food.', hours: 1, drain: -24, pose: 'eat', out: false, icon: 'cook',
+    need: s => { const m = mealNow(s.clock); return !(s.pantry + s.food) ? 'There is no food in the house. The shop is in Ammos.' : !m ? 'It is not a mealtime. Lunch is from twelve, dinner from seven.' : s.ate[m] ? `You have had ${m} already.` : ''; },
+    done: s => { if (s.pantry) s.pantry--; else s.food--; meal(s, 'home'); return [bump(s, 'cook') === 1 ? 'You cooked eggs and tomatoes, and ate them on the veranda with bread, looking at the olive trees.' : 'You cooked something that was mostly tomatoes. It was very good.']; } },
   { id: 'nap', where: at('kalogerou'), label: 'A siesta on the veranda', sub: 'The proper thing to do, between one and five.', hours: 1.5, drain: -18, pose: 'nap', out: false, icon: 'nap',
     need: window_(13, 18, 'Nobody has a siesta at this time of day. Not even here.'),
     done: s => { s.naps++; return [s.naps === 1 ? 'You slept in the shade of the veranda. When you woke up, the cicadas were exactly where you had left them.' : 'Another siesta. The olive trees did not move. Neither did you.']; } },
@@ -911,7 +939,7 @@ const ACTS = [
   { id: 'jar', where: at('aspri'), label: 'Fill a bottle with white sand', sub: 'An empty water bottle, and the whitest sand on the island.', hours: 0.5, drain: 0, pose: 'look', icon: 'jar',
     show: s => s.ch === 'beach' && !s.keep.sand, done: s => { s.keep.sand = true; return ['You filled your empty water bottle with white sand from Aspri Ammos. It looked like a bottle of light.']; } },
   { id: 'picnic', where: at('aspri', 'xylo', 'fyki', 'imerovigli', 'kastri', 'stavros'), label: 'Have a picnic', sub: s => s.food ? 'Bread, cheese and tomatoes from the shop.' : 'You have not brought any food. The shop in Ammos sells it.', hours: 1, drain: -20, pose: 'eat', icon: 'food',
-    need: s => { const m = mealNow(s.clock); return !s.food ? 'You have no food with you.' : !m ? 'It is not a mealtime.' : s.ate[m] ? `You have had ${m} already.` : ''; },
+    need: s => { const m = mealNow(s.clock); return !s.food ? 'You have no food in your bag. The shop in Ammos sells it, or take some from the kitchen at the house.' : !m ? 'It is not a mealtime.' : s.ate[m] ? `You have had ${m} already.` : ''; },
     done: s => { s.food--; meal(s, 'picnic'); return ['You ate bread and cheese and tomatoes in the open air, and threw the crusts to a gull, which was rude about it.']; } },
   { id: 'to_cave', where: at('aspri'), label: 'Swim to Calypso’s cave', sub: 'Along the foot of the cliffs. Not far.', hours: 0.4, drain: 6, pose: 'swim', out: false, icon: 'swim',
     done: s => { s.coolUntil = s.clock + 2; moveTo(s, 'cave'); return ['You swam along the foot of the white cliffs, round a corner of rock, and into the mouth of the cave.']; } },
@@ -993,6 +1021,38 @@ const D_TALK = {
 };
 function dTalk(s) { const L = D_TALK[s.ch] || D_TALK.beach; return L[bump(s, 'dtalk') % L.length]; }
 
+// ---------- the shop, your bag, and the kitchen at the house ----------
+const bagUsed = s => s.food + (s.keep.sand ? 1 : 0) + (s.keep.pebble ? 1 : 0) + (s.keep.postcard ? 1 : 0);
+function buyItem(s, id) {
+  const I = SHOP[id];
+  if (!I || !s.shopOpen) return { ok: false, msg: 'The shop is in Ammos.' };
+  if (I.once && I.once(s)) return { ok: false, msg: id === 'hat' ? 'You have a hat. One is the right number of hats.' : 'You have one already.' };
+  if (I.price > s.eur) return { ok: false, msg: `That costs ${I.price} €, and you have ${s.eur}.` };
+  if (I.bag && bagUsed(s) >= BAG_SIZE) return { ok: false, msg: 'Your rucksack is full. Leave some food on the kitchen shelf at the house.' };
+  s.eur -= I.price;
+  let line;
+  if (id === 'food') { s.food++; line = s.food > 1 ? `Bread, tomatoes, cheese and eggs, wrapped in paper. That makes food for ${num(s.food)} meals in your bag.` : 'Bread, tomatoes, cheese and eggs, wrapped in paper: one meal, in your bag.'; }
+  else if (id === 'hat') { s.hat = true; line = 'You tried on every hat in the shop and bought the first one. It made you look like somebody on holiday, which was the idea.'; }
+  else if (id === 'icecream') { s.energy = clamp(s.energy + 6, 0, 100); s.coolUntil = Math.max(s.coolUntil, s.clock + 1); line = bump(s, 'icecream') === 1 ? 'You ate it on the step outside, before it could melt. It was close.' : 'Another ice cream. The woman behind the counter said nothing, kindly.'; }
+  else { s.keep.postcard = true; line = 'You bought a postcard. You did not know who you would send it to, which is the best kind of postcard.'; }
+  say(s, line);
+  return { ok: true, line };
+}
+function leaveShop(s) { s.shopOpen = false; }
+function stash(s) {   // leave the food from your bag on the kitchen shelf
+  if (s.place !== 'kalogerou' || s.phase !== 'day' || s.busy || s.travel) return { ok: false, msg: 'The kitchen is at the house.' };
+  if (!s.food) return { ok: false, msg: 'There is no food in your bag.' };
+  const n = s.food; s.pantry += n; s.food = 0;
+  return { ok: true, msg: `You put ${num(n)} meal${n > 1 ? 's' : ''} of food on the kitchen shelf.` };
+}
+function unstash(s) {   // take a meal from the kitchen, for a picnic
+  if (s.place !== 'kalogerou' || s.phase !== 'day' || s.busy || s.travel) return { ok: false, msg: 'The kitchen is at the house.' };
+  if (!s.pantry) return { ok: false, msg: 'The kitchen shelf is empty.' };
+  if (bagUsed(s) >= BAG_SIZE) return { ok: false, msg: 'Your rucksack is full.' };
+  s.pantry--; s.food++;
+  return { ok: true, msg: 'You put a meal in your bag, for a picnic.' };
+}
+
 // ---------- the clock ----------
 function moveTo(s, place) {
   s.place = place; s.travel = null;
@@ -1015,7 +1075,7 @@ function story(s, id) {
 }
 function startAct(s, id) {
   const A = ACT[id];
-  if (!A || s.phase !== 'day' || s.busy || s.travel || s.pending) return { ok: false, msg: 'Not now.' };
+  if (!A || s.phase !== 'day' || s.busy || s.travel || s.pending || s.shopOpen) return { ok: false, msg: 'Not now.' };
   const v = actView(s, A);
   if (!v.show) return { ok: false, msg: 'You can’t do that here.' };
   if (v.why) return { ok: false, msg: v.why };
@@ -1136,7 +1196,7 @@ function startTravel(s, to, mode, free) {
   return { ok: true };
 }
 function goTo(s, to, mode) {
-  if (s.phase !== 'day' || s.busy || s.travel || s.pending) return { ok: false, msg: 'Not now.' };
+  if (s.phase !== 'day' || s.busy || s.travel || s.pending || s.shopOpen) return { ok: false, msg: 'Not now.' };
   if (s.day === 1 && s.tour < 7 && s.tour !== 4) return { ok: false, msg: 'Dionysis is showing you round. Go with him for now.' };
   const info = tripInfo(s, to, mode);
   if (!info.ok) return { ok: false, msg: info.why };
@@ -1235,8 +1295,8 @@ const EVENTS = {
     },
     choices: s => [{ id: 'help', label: s.ch === 'beach' ? 'Ask him where to go' : 'Ask him to help' }, { id: 'fine', label: 'Say it is all under control' }],
     resolve(s, c) {
-      s.seen.checkin = 1; gainIdeas(s, 4); s.food += 2;
-      if (c === 'fine') return ['“Good,” he said, in the voice of somebody who has heard that before, and left you the bread and the peaches: food for two meals.'];
+      s.seen.checkin = 1; gainIdeas(s, 4); s.pantry += 2;
+      if (c === 'fine') return ['“Good,” he said, in the voice of somebody who has heard that before, and left the bread and the peaches on the kitchen shelf: food for two meals.'];
       if (s.ch === 'inst') { s.flags.dHelp = 1; s.count.helped = 1; s.mat.stone += 4; return ['He left the bread and peaches on the table. “I’ll bring the car,” he said, “and help you build one day.” He came back an hour later with the boot full of stones. “There are stones everywhere on this island,” he said, “but these are my stones.”', 'Your next day of building will be quicker.']; }
       if (s.ch === 'song') { s.flags.dPlay = 1; gainIdeas(s, 6); return ['He left the bread and peaches on the table. “I can play three chords on the guitar,” he said. “Most songs only need three.” He played them. The song needed a fourth, and you found it, because of the three.']; }
       s.flags.liftsDay = s.day; return ['He left the bread and peaches on the table. “Fyki,” he said. “Swim out over the bay. Then the taverna. Then a siesta. Then the sunset from Xylosermoi. Then sleep on the beach. That’s a week’s work.”', 'He said he would give you a lift anywhere today. He meant it.'];
@@ -1453,6 +1513,7 @@ const LOOKS = {
   boatman: { skin: '#9a6a42', hair: '#2a1d14', style: 'short', beard: 1, robe: '#e0d6c2', trim: '#3f6f8e', hat: 'cap' },
   kid: { skin: '#d8a47a', hair: '#6a4426', style: 'short', robe: '#e0b840', trim: '#f3ead6' },
   guest: { skin: '#e0b090', hair: '#c8a060', style: 'long', robe: '#c86a8a', trim: '#f3ead6' },
+  shop: { skin: '#c99a72', hair: '#8a8478', style: 'bun', robe: '#4f7a9a', trim: '#f3ead6' },
 };
 const FACES = {};
 function faceURL(id) { return FACES[id] || (FACES[id] = scaledURL(makeFace(LOOKS[id]), 1)); }
@@ -1530,6 +1591,8 @@ const PXI = {
   site: ['....#......', '....###....', '....#####..', '....#......', '....#......', '....#......', '....#......', '..#####....', '.#.....#...', '#.......#..', '...........'],
   build: ['.#.........', '###........', '.#.....#...', '.......#...', '.....#.#.#.', '.....#.#.#.', '.#.#.#.#.#.', '.#.#.#.#.#.', '###########', '###########', '...........'],
   gift: ['..##...##..', '...#.#.#...', '....###....', '###########', '#....#....#', '###########', '.#...#...#.', '.#...#...#.', '.#...#...#.', '.#########.', '...........'],
+  bag: ['...#####...', '..#.....#..', '.#########.', '.#.......#.', '.#.#####.#.', '.#.#...#.#.', '.#.#####.#.', '.#.......#.', '.#.......#.', '.#########.', '...........'],
+  ice: ['....###....', '...#####...', '..#######..', '..#######..', '...#####...', '...#.#.#...', '....#.#....', '....###....', '.....#.....', '.....#.....', '...........'],
   car: ['...........', '...#####...', '..#.....#..', '.#.......#.', '###########', '###########', '###########', '.##.....##.', '.##.....##.', '...........', '...........'],
 };
 function pxIcon(name) {
@@ -1540,7 +1603,7 @@ function pxIcon(name) {
 }
 const ICON_TINT = { eat: '#eac05a', coffee: '#d9a466', food: '#b6c66c', hat: '#e6c47c', postcard: '#62c6d9', swim: '#62c6d9', look: '#f3ead6', boat: '#62c6d9', net: '#b3ab99', record: '#ee7383',
   bed: '#a7b6e8', cook: '#eac05a', nap: '#a7b6e8', think: '#eac05a', sketch: '#f3ead6', verse: '#62c6d9', guitar: '#d9a466', walk: '#b6c66c', talk: '#f3ead6', tile: '#e07b4f', wood: '#d6c6a4',
-  stone: '#e8e4da', sun: '#eac05a', jar: '#f3ead6', echo: '#62c6d9', light: '#f6f0c0', site: '#93e2da', build: '#93e2da', gift: '#eac05a', car: '#7ea6c6' };
+  stone: '#e8e4da', sun: '#eac05a', jar: '#f3ead6', echo: '#62c6d9', light: '#f6f0c0', site: '#93e2da', build: '#93e2da', gift: '#eac05a', car: '#7ea6c6', ice: '#f3c6d4', bag: '#d9b98a' };
 // A euro coin, two metals.
 const COIN = sprite(11, 11, P => {
   for (let y = 0; y < 11; y++) for (let x = 0; x < 11; x++) { const d = Math.hypot(x - 5, y - 5); if (d <= 5.2) P(x, y, d > 3.6 ? (x + y < 9 ? '#f0d77a' : '#b8962e') : (x + y < 9 ? '#eef1f4' : '#9aa1a8')); }
@@ -2573,7 +2636,7 @@ function thing(icon, label, n, off) { return `<span class="thing${off ? ' off' :
 function workPanel() {
   const C = CHAPTERS[S.ch];
   let h = `<h1 class="place">${esc(C.name)}</h1><p class="sub">Chapter ${C.numeral} · a week at Kalogerou</p>`;
-  h += `<div class="meters"><span>Energy <b>${Math.round(S.energy)}</b></span><span>Ideas <b>${S.ideas}</b></span><span>Money <b>${S.eur} €</b></span><span>Food <b>${S.food}</b></span>${S.hat ? '<span>Sun hat <b>yes</b></span>' : ''}</div>`;
+  h += `<div class="meters"><span>Energy <b>${Math.round(S.energy)}</b></span><span>Ideas <b>${S.ideas}</b></span><span>Money <b>${S.eur} €</b></span><span>Food <b>${S.food + S.pantry}</b></span>${S.hat ? '<span>Sun hat <b>yes</b></span>' : ''}</div>`;
   h += `<h2 class="sec">This week</h2><ul class="goals">${goalsOf(S).map(g => `<li class="${g.done ? 'done' : ''}"><span class="box"></span><span>${esc(g.text)}${g.prog ? `<small>${esc(g.prog)}</small>` : ''}</span></li>`).join('')}</ul>`;
   if (S.ch === 'inst') {
     h += '<h2 class="sec">Materials</h2><div class="things">' + [['wood', 'wood'], ['stone', 'stone'], ['net', 'net'], ['tile', 'tile']].map(([k, ic]) => thing(ic, MATERIALS[k], S.mat[k], !S.mat[k])).join('') + '</div>';
@@ -2601,6 +2664,47 @@ function journalPanel() {
   for (let i = L.length - 1; i >= 0; i--) { const e = L[i]; h += e.tone === 'chap' ? `<li class="chap">${esc(e.text)}</li>` : `<li class="${e.tone === 'bad' ? 'bad' : e.tone === 'good' ? 'good' : ''}"><span class="when">${esc(e.when)}</span>${esc(e.text)}</li>`; }
   return h + '</ol><p class="note" style="margin-top:18px">Island history here is attributed where it is local tradition rather than record. Sources include the Visit Corfu and Kalogerou websites, local histories, and news reports on Block 2.</p>';
 }
+const itemRow = (icon, name, note) => `<div class="item"><span class="ti" style="color:${ICON_TINT[icon] || 'var(--bone)'}">${pxIcon(icon)}</span><span class="in">${esc(name)}</span><span class="id">${esc(note)}</span></div>`;
+function bagPanel() {
+  const used = bagUsed(S), inBag = [];
+  for (let i = 0; i < S.food; i++) inBag.push('food');
+  if (S.keep.sand) inBag.push('jar');
+  if (S.keep.pebble) inBag.push('stone');
+  if (S.keep.postcard) inBag.push('postcard');
+  let h = `<h1 class="place">Your bag</h1><p class="sub">A rucksack · ${used} of ${BAG_SIZE} places used</p>`;
+  h += '<div class="slots" aria-hidden="true">' + Array.from({ length: BAG_SIZE }, (_, i) => `<span class="slot">${inBag[i] ? `<span style="color:${ICON_TINT[inBag[i]]};display:contents">${pxIcon(inBag[i])}</span>` : ''}</span>`).join('') + '</div>';
+  const rows = [];
+  if (S.food) rows.push(itemRow('food', 'Bread, tomatoes, cheese and eggs × ' + S.food, 'A meal each. Cook it at the house, or have a picnic anywhere at lunch or dinner time.'));
+  if (S.keep.sand) rows.push(itemRow('jar', 'A bottle of white sand', 'From Aspri Ammos. It looks like a bottle of light.'));
+  if (S.keep.pebble) rows.push(itemRow('stone', 'A pebble with a hole in it', 'People say they are lucky.'));
+  if (S.keep.postcard) rows.push(itemRow('postcard', 'A postcard', 'Not written yet.'));
+  h += rows.length ? `<div class="items">${rows.join('')}</div>` : '<p class="note">Empty, so far. Food from the shop in Ammos goes in here, for picnics, and so does anything you pick up.</p>';
+  const withYou = [];
+  if (S.hat) withYou.push(itemRow('hat', 'A straw hat', 'On your head. The afternoon heat costs you less.'));
+  withYou.push(S.ch === 'song' ? itemRow('record', 'The field recorder', `${num(soundsN(S))} sound${soundsN(S) === 1 ? '' : 's'} of the island on it.`) : S.ch === 'inst' ? itemRow('sketch', 'A sketchbook and a roll of wire', 'For plans, and for holding things together.') : itemRow('nap', 'A towel', 'Mostly sand by now.'));
+  if (S.keep.photo) withYou.push(itemRow('sun', 'A photograph of the sun going down', 'On your phone.'));
+  h += `<h2 class="sec">With you</h2><div class="items">${withYou.join('')}</div>`;
+  h += `<h2 class="sec">At the house</h2><div class="items">${itemRow('cook', 'The kitchen shelf', S.pantry ? `Food for ${num(S.pantry)} meal${S.pantry > 1 ? 's' : ''}. Cooking uses this first.` : 'Empty.')}`;
+  if (S.ch === 'inst' && matTotal(S)) h += itemRow('wood', 'Your materials, piled up', Object.keys(MATERIALS).filter(k => S.mat[k]).map(k => S.mat[k] + ' ' + MATERIALS[k].toLowerCase()).join(', ') + '.');
+  if (S.ch === 'song') h += itemRow('guitar', 'The guitar', `On the veranda, with ${S.verses.length ? num(S.verses.length) + ' verse' + (S.verses.length > 1 ? 's' : '') : 'no verses yet'} beside it.`);
+  h += '</div>';
+  const atHouse = S.place === 'kalogerou' && S.phase === 'day' && !S.busy && !S.travel;
+  if (atHouse && (S.food || S.pantry)) h += '<div class="btns" style="margin-top:12px">' + (S.food ? '<button class="btn" type="button" data-act="stash">Put the food on the kitchen shelf</button>' : '') + (S.pantry ? `<button class="btn" type="button" data-act="unstash"${used >= BAG_SIZE ? ' disabled' : ''}>Take a meal for a picnic</button>` : '') + '</div>';
+  else if (!atHouse && (S.food || S.pantry)) h += '<p class="note">At the house you can move food between your bag and the kitchen shelf.</p>';
+  return h;
+}
+function shopSheet() {
+  const line = SHOP_LINES[((S.count.shopTalk || 1) - 1) % SHOP_LINES.length];
+  const rows = Object.keys(SHOP).map(id => {
+    const I = SHOP[id], gone = I.once && I.once(S);
+    const note = id === 'food' ? `${I.sub} You have ${num(S.food)} in your bag${S.pantry ? ' and ' + num(S.pantry) + ' at the house' : ''}.` : gone ? (id === 'hat' ? 'You are wearing it.' : 'It is in your bag.') : I.sub;
+    return `<div class="trade"><span class="ti" style="color:${ICON_TINT[I.icon]}">${pxIcon(I.icon)}</span><span class="tn">${esc(I.name)}<small>${esc(note)}</small></span>` +
+      `<span class="tb"><span class="pr">${I.price} €</span><button class="btn" type="button" data-act="buy" data-item="${id}"${gone ? ' disabled' : ''}>Buy</button></span></div>`;
+  }).join('');
+  return `<div class="sheet-head"><img class="pix" src="${faceURL('shop')}" alt=""><div><h2>The shop</h2><p>Ammos · open from eight in the morning to nine at night</p></div></div>` +
+    `<p class="quote">${esc(line)}</p>${UI.reply ? `<p class="reply${UI.reply.good ? ' good' : ''}">${esc(UI.reply.text)}</p>` : ''}<div class="trades">${rows}</div>` +
+    `<p class="note">Your bag: ${bagUsed(S)} of ${BAG_SIZE} places used. You have ${S.eur} €.</p><button class="btn wide" type="button" data-act="leaveshop">Done</button>`;
+}
 function renderPanel() {
   if (!S || S.phase === 'title' || S.phase === 'summary' || S.phase === 'finale') return;
   const tab = UI.tab;
@@ -2611,7 +2715,7 @@ function renderPanel() {
     return;
   }
   UI.mounted = tab;
-  setHTML(els.panel, tab === 'map' ? mapPanel() : tab === 'work' ? workPanel() : tab === 'journal' ? journalPanel() : herePanel());
+  setHTML(els.panel, tab === 'map' ? mapPanel() : tab === 'bag' ? bagPanel() : tab === 'work' ? workPanel() : tab === 'journal' ? journalPanel() : herePanel());
 }
 function herePanelBusy() {
   const P = PLACES[S.place];
@@ -2630,7 +2734,7 @@ function updateTabs() {
   for (const b of els.tabs.querySelectorAll('button')) {
     const on = b.dataset.tab === UI.tab;
     if (b.getAttribute('aria-selected') !== String(on)) b.setAttribute('aria-selected', String(on));
-    const dot = b.querySelector('.dot'), show = b.dataset.tab === 'journal' && UI.newFact;
+    const dot = b.querySelector('.dot'), show = (b.dataset.tab === 'journal' && UI.newFact) || (b.dataset.tab === 'bag' && UI.newBag && UI.tab !== 'bag');
     if (dot.hidden === !!show) dot.hidden = !show;
   }
   const mapview = S.phase === 'day' && (UI.tab === 'map' || !!S.travel || boatRide() > 0);
@@ -2671,13 +2775,13 @@ function pumpStory(now) {
   UI.holdFor = clamp(1400 + e.text.length * 32, 2400, 6000) * (UI.queue.length > 1 ? 0.55 : 1) / Math.max(1, (S.busy || S.travel ? UI.speed * DEV.speed * 0.7 : 1));
 }
 const GAINS = [['ideas', s => s.ideas, 'idea', 'ideas'], ['mat', s => matTotal(s), 'piece of material', 'pieces of material'], ['snd', s => soundsN(s), 'sound', 'sounds'], ['verse', s => s.verses.length, 'verse', 'verses'],
-  ['swim', s => swimsN(s), 'new place to swim', 'new places to swim'], ['food', s => s.food, 'meal of food', 'meals of food'], ['keep', s => keepsN(s), 'thing for the collection', 'things for the collection']];
+  ['swim', s => swimsN(s), 'new place to swim', 'new places to swim'], ['food', s => s.food + s.pantry, 'meal of food', 'meals of food'], ['hat', s => s.hat ? 1 : 0, 'straw hat', 'straw hats'], ['keep', s => keepsN(s), 'thing for the collection', 'things for the collection']];
 function floatGains() {   // compare with the last look, and float up whatever was gained
   if (!S || S.phase !== 'day' || !S.ch) { UI.gainsSeen = null; return; }
   const now = GAINS.map(g => g[1](S));
   if (UI.gainsSeen && UI.gainsCh === S.ch && UI.gainsDay === S.day) {
     let k = 0;
-    GAINS.forEach((g, i) => { const d = now[i] - UI.gainsSeen[i]; if (d > 0) floater('+' + d + ' ' + (d === 1 ? g[2] : g[3]), k++); });
+    GAINS.forEach((g, i) => { const d = now[i] - UI.gainsSeen[i]; if (d > 0) { floater('+' + d + ' ' + (d === 1 ? g[2] : g[3]), k++); if (['food', 'hat', 'keep'].includes(g[0])) UI.newBag = true; } });
   }
   UI.gainsSeen = now; UI.gainsCh = S.ch; UI.gainsDay = S.day;
 }
@@ -2736,14 +2840,14 @@ function menuSheet() {
     `<button class="btn wide" type="button" data-act="restart">${restart ? 'Tap again to start this week again' : 'Start this week again'}</button>` +
     closeBtn() + '</div><p class="note" style="margin-top:14px">A game about the Kalogerou residency in Chorio, on Othonoi. The people in it are invented, except the island.</p>';
 }
-function openSheet(kind, arg) { UI.sheet = { kind, arg }; UI.outcome = null; UI.armed = null; UI.talkN = 0; els.sheet.hidden = false; renderSheet(true); }
+function openSheet(kind, arg) { UI.sheet = { kind, arg }; UI.outcome = null; UI.armed = null; UI.talkN = 0; UI.reply = null; els.sheet.hidden = false; renderSheet(true); }
 function renderSheet(first) {
   if (!UI.sheet) return;
   const k = UI.sheet.kind;
-  setHTML(els.sheetCard, k === 'event' ? eventSheet() : k === 'place' ? placeSheet(UI.sheet.arg) : k === 'person' ? personSheet() : menuSheet());
+  setHTML(els.sheetCard, k === 'event' ? eventSheet() : k === 'place' ? placeSheet(UI.sheet.arg) : k === 'person' ? personSheet() : k === 'shop' ? shopSheet() : menuSheet());
   if (first) { els.sheetCard.scrollTop = 0; const b = els.sheetCard.querySelector('button'); if (b) b.focus({ preventScroll: true }); }
 }
-function closeSheet() { UI.sheet = null; UI.outcome = null; els.sheet.hidden = true; els.sheetCard._html = ''; UI.preview = null; UI.target = null; }
+function closeSheet() { if (UI.sheet && UI.sheet.kind === 'shop' && S) leaveShop(S); UI.sheet = null; UI.outcome = null; els.sheet.hidden = true; els.sheetCard._html = ''; UI.preview = null; UI.target = null; }
 
 // ---- the theatre: the title, the arrival, the open studio, and the end of the week ----
 const TH = { mode: null, i: 0, lines: [], chose: null, songEnd: 0 };
@@ -2895,6 +2999,9 @@ function doAct(act, b) {
     case 'continue': UI.outcome = null; if (S.pending) renderSheet(true); else closeSheet(); break;
     case 'close': closeSheet(); break;
     case 'talk': UI.talkN = (UI.talkN || 0) + 1; renderSheet(); break;
+    case 'buy': { const r = buyItem(S, b.dataset.item); if (!r.ok) { Snd.nope(); UI.reply = { text: r.msg, good: false }; } else { Snd.coin(); UI.reply = { text: r.line, good: true }; } renderSheet(); break; }
+    case 'leaveshop': closeSheet(); break;
+    case 'stash': case 'unstash': { const r = (act === 'stash' ? stash : unstash)(S); if (r.ok) Snd.step(); else Snd.nope(); toast(r.msg); break; }
     case 'skip': if (skipTour(S)) { UI.lastKey = placeKey(); toast('The first day went by, much as it did before.'); } break;
     case 'sound': toggleSound(); renderSheet(); break;
     case 'chapters': closeSheet(); playIntro(true); break;
@@ -2918,7 +3025,7 @@ document.addEventListener('click', e => {
   }
   Snd.init();
   if (b.dataset.t) return theaterAct(b.dataset.t, b);
-  if (b.dataset.tab) { if (b.dataset.tab === 'journal') UI.newFact = false; return setTab(b.dataset.tab); }
+  if (b.dataset.tab) { if (b.dataset.tab === 'journal') UI.newFact = false; if (b.dataset.tab === 'bag') UI.newBag = false; return setTab(b.dataset.tab); }
   if (b.dataset.act) return doAct(b.dataset.act, b);
   if (b.id === 'menuBtn') return openSheet('menu');
   if (b.id === 'soundBtn') return toggleSound();
@@ -2992,6 +3099,7 @@ function frame(now) {
   const sheetUp = !!UI.sheet, live = S.phase === 'day' && !S.pending && !sheetUp && els.theater.hidden && (S.busy || S.travel);
   if (live) tick(S, dt * UI.speed * DEV.speed);
   if (S.pending && els.theater.hidden && (!UI.sheet || UI.sheet.kind !== 'event')) { closeSheet(); openSheet('event'); Snd.event(); }
+  if (S.shopOpen && !S.pending && els.theater.hidden && !UI.sheet) openSheet('shop');
   if (S.phase === 'finale' && els.theater.hidden && !UI.sheet) { save(); showFinale(); }
   if (S.phase === 'day' || S.phase === 'night') onPlace();
   pumpStory(now);
@@ -3033,7 +3141,7 @@ function start(data) {
 }
 const hotApi = window.claude && window.claude.hot;
 if (hotApi && typeof hotApi.snapshot === 'function') { try { hotApi.snapshot(() => ({ state: S, tab: UI.tab })); } catch (e) { /* ignore */ } }
-window.__oth = { state: () => S, speed: v => { DEV.speed = v; }, ui: UI, fns: { startAct, goTo, tick, resolveEvent, wake, endWeek, actsHere, tripInfo, goalsOf, hint, skipTour, startChapter, summarize, canLift, route, dionysisHere } };
+window.__oth = { state: () => S, speed: v => { DEV.speed = v; }, ui: UI, fns: { startAct, goTo, buyItem, leaveShop, stash, unstash, bagUsed, tick, resolveEvent, wake, endWeek, actsHere, tripInfo, goalsOf, hint, skipTour, startChapter, summarize, canLift, route, dionysisHere } };
 if (hotApi && typeof hotApi.ready === 'function') hotApi.ready(start);
 else start((hotApi && hotApi.data) || {});
 })();

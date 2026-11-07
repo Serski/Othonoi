@@ -68,6 +68,13 @@ function makeBot(E) {
     const here = s.place, B = s.bot;
     const doAct = id => E.startAct(s, id).ok;
     const go = to => { if (to === here) return false; const mode = E.canLift(s) && E.tripInfo(s, to, 'car').ok && E.tripInfo(s, to, 'car').hours < E.tripInfo(s, to, 'walk').hours - 0.2 ? 'car' : 'walk'; return E.goTo(s, to, mode).ok; };
+    if (s.shopOpen) {   // in the shop: food for a few meals, a hat for the afternoons, a postcard for the beach, then out
+      const buy = id => E.buyItem(s, id).ok;
+      if (s.food < 3 && s.eur > 20 && E.bagUsed(s) < E.BAG_SIZE && buy('food')) return true;
+      if (!s.hat && s.eur > 40 && buy('hat')) return true;
+      if (s.ch === 'beach' && !s.keep.postcard && s.eur > 10 && buy('postcard')) return true;
+      E.leaveShop(s); return true;
+    }
     // the first day: go with Dionysis
     const tourAct = E.actsHere(s).find(a => a.primary && !a.why && E.ACT[a.id].tour != null);
     if (tourAct) return doAct(tourAct.id);
@@ -87,12 +94,11 @@ function makeBot(E) {
       if (here === 'ammos' && s.eur >= 15 && (B.eatOut || s.ch === 'beach') && can(s, 'taverna')) return doAct('taverna');
       if (here === 'kalogerou' && can(s, 'cook')) return doAct('cook');
       if (s.food && can(s, 'picnic')) return doAct('picnic');
-      if (here === 'ammos' && s.food < 3 && can(s, 'groceries')) return doAct('groceries');
+      if (here === 'ammos' && s.food < 3 && s.eur > 20 && can(s, 'shop')) return doAct('shop');
       if (here === 'ammos' && s.eur >= 15 && can(s, 'taverna')) return doAct('taverna');
-      if (!E.PLACES[here].boat && s.clock < (m === 'lunch' ? 15.5 : 22.5)) { if (s.food && here !== 'kalogerou') return go('kalogerou'); if (!s.food && here !== 'ammos') return go('ammos'); }
+      if (!E.PLACES[here].boat && s.clock < (m === 'lunch' ? 15.5 : 22.5)) { if (s.food + s.pantry && here !== 'kalogerou') return go('kalogerou'); if (!(s.food + s.pantry) && here !== 'ammos') return go('ammos'); }
     }
-    if (here === 'ammos' && s.food < 2 && s.eur > 30 && can(s, 'groceries')) return doAct('groceries');
-    if (here === 'ammos' && !s.hat && s.eur > 40 && can(s, 'hat')) return doAct('hat');
+    if (here === 'ammos' && ((s.food < 2 && s.eur > 30) || (!s.hat && s.eur > 40) || (s.ch === 'beach' && !s.keep.postcard && s.eur > 10)) && can(s, 'shop')) return doAct('shop');
     if (s.energy < 25) {
       for (const id of ['nap', 'coffee', 'nothing', 'veranda']) if (can(s, id)) return doAct(id);
     }

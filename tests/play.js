@@ -14,11 +14,13 @@ const html = fs.readFileSync(path.join(__dirname, '..', 'src', 'game.html'), 'ut
 const code = html.split('// ===== ENGINE START =====')[1].split('// ===== ENGINE END =====')[0];
 const E = new Function(code + `
 return { newGame, startChapter, actsHere, actView, ACT, startAct, goTo, tick, resolveEvent, EVENTS, wake, endWeek, goalsOf, summarize, tripInfo, canLift,
-  PLACES, OUT, skipTour, mealNow, matTotal, soundsN, swimsN, keepsN, unlockedList, LAST_DAY };`)();
+  PLACES, OUT, skipTour, mealNow, matTotal, soundsN, swimsN, keepsN, unlockedList, LAST_DAY, buyItem, leaveShop, bagUsed, BAG_SIZE };`)();
 let intent = null;
 const thinking = Object.assign({}, E, {
   startAct: (s, id) => { intent = { act: id }; return { ok: true }; },
   goTo: (s, to, mode) => { intent = { go: to, mode }; return { ok: true }; },
+  buyItem: (s, id) => { intent = { buy: id }; return { ok: true }; },
+  leaveShop: s => { intent = { leave: true }; },
 });
 const { BOTS, CHOICE, decide } = require('./bot.js').makeBot(thinking);
 
@@ -81,6 +83,8 @@ const { BOTS, CHOICE, decide } = require('./bot.js').makeBot(thinking);
       const ok = decide(s);
       if (!ok || !intent) { if (++stuck > 12) throw new Error(`${ch}: the bot is stuck on day ${s.day} at ${s.clock.toFixed(2)}, ${s.place}`); await page.waitForTimeout(150); continue; }
       stuck = 0;
+      if (intent.buy) { await click(`#sheetCard button[data-act="buy"][data-item="${intent.buy}"]`); await snap(tag + '-shop'); continue; }
+      if (intent.leave) { await click('#sheetCard button[data-act="leaveshop"]'); if (s.day === 2) { await click('#tab-bag'); await snap(tag + '-bag'); } continue; }
       if (intent.act) {
         if (!(await visible('#tab-here[aria-selected="true"]'))) await click('#tab-here');
         await click(`#panel button[data-act="do"][data-id="${intent.act}"]`);

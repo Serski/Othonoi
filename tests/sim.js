@@ -9,7 +9,7 @@ const html = fs.readFileSync(file, 'utf8');
 const code = html.split('// ===== ENGINE START =====')[1].split('// ===== ENGINE END =====')[0];
 const E = new Function(code + `
 return { newGame, startChapter, actsHere, actView, ACT, startAct, goTo, tick, resolveEvent, EVENTS, wake, endWeek, goalsOf, summarize, tripInfo, canLift,
-  PLACES, OUT, skipTour, mealNow, matTotal, soundsN, swimsN, keepsN, unlockedList, LAST_DAY };`)();
+  PLACES, OUT, skipTour, mealNow, matTotal, soundsN, swimsN, keepsN, unlockedList, LAST_DAY, buyItem, leaveShop, bagUsed, BAG_SIZE };`)();
 
 const { BOTS, CHOICE, decide } = require('./bot.js').makeBot(E);
 

@@ -1,5 +1,5 @@
 // Wraps src/game.html (a page fragment, which can be published to claude.ai as it is) into index.html, a standalone page.
-// Usage: node othonoi/tools/build.mjs
+// Usage: node tools/build.mjs
 import { readFileSync, writeFileSync } from 'node:fs';
 
 const srcUrl = new URL('../src/game.html', import.meta.url);
@@ -14,7 +14,7 @@ const head = src.slice(0, cut).trim();
 const body = src.slice(cut).trim();
 
 const page = `<!doctype html>
-<!-- Generated from src/game.html by tools/build.mjs. Edit the source, then run: node othonoi/tools/build.mjs -->
+<!-- Generated from src/game.html by tools/build.mjs. Edit the source, then run: node tools/build.mjs -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -29,4 +29,4 @@ ${body}
 `;
 
 writeFileSync(outUrl, page);
-console.log(`Wrote othonoi/index.html (${Math.round(page.length / 1024)} KB)`);
+console.log(`Wrote index.html (${Math.round(page.length / 1024)} KB)`);

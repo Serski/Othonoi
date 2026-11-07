@@ -1,12 +1,14 @@
 # Othonoi
 
-A small pixel-art game about a week at the Kalogerou artist residency in Chorio, on Othonoi, the westernmost inhabited island in Greece. It is drawn in the style of [Emporos](../README.md) and borrows some of the logic of [Vinland 1021](https://github.com/Serski/vinland-1021): things take time, the island tells you its stories when you go to see it, and a checklist keeps the week on track.
+A small pixel-art game about a week at the Kalogerou artist residency in Chorio, on Othonoi, the westernmost inhabited island in Greece. It is drawn in the style of [Emporos](https://github.com/Serski/Emporos) and borrows some of the logic of [Vinland 1021](https://github.com/Serski/vinland-1021): things take time, the island tells you its stories when you go to see it, and a checklist keeps the week on track.
 
 You are an artist. You come on the morning boat from Corfu, and Dionysis, who wears glasses and explains things, meets you on the quay at Ammos and shows you the island. Then he asks what you are going to make.
 
 ## Play
 
-Open `index.html` in a browser. It is a single file with nothing to install, and progress saves in the browser. With GitHub Pages switched on for this repository, it is at `https://serski.github.io/Emporos/othonoi/`.
+Open `index.html` in a browser. It is a single file with nothing to install, and progress saves in the browser.
+
+To put it online for free with GitHub Pages: in the repository, go to **Settings → Pages**, choose **Deploy from a branch**, then pick `main` and `/ (root)`. The game appears at `https://serski.github.io/Othonoi/` a minute or two later.
 
 ## The three chapters
 
@@ -49,22 +51,30 @@ As in Emporos, the rules inside `src/game.html` sit between `// ===== ENGINE STA
 
 ## Working on it
 
-From the root of the repository. After editing `othonoi/src/game.html`, regenerate the standalone page:
+After editing `src/game.html`, regenerate the standalone page:
 
 ```bash
-node othonoi/tools/build.mjs
+node tools/build.mjs
 ```
 
-Check that every chapter can be finished (takes a few seconds):
+Check that every chapter can be finished (takes a few seconds; add a number of games per bot, such as `node tests/sim.js src/game.html 10`, to make it quicker):
 
 ```bash
-node othonoi/tests/sim.js
+node tests/sim.js
 ```
 
-Play all three chapters in a headless browser (takes a few minutes; needs `npm install` and `npx playwright install chromium` once):
+Play all three chapters in a headless browser (takes about five minutes):
 
 ```bash
-node othonoi/tests/play.js
+npm install
+```
+
+```bash
+npx playwright install chromium
+```
+
+```bash
+npm test
 ```
 
 ## Sources

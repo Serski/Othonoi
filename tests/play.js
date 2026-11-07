@@ -1,7 +1,7 @@
 // Plays all three chapters of Othonoi in a phone-sized browser through the real buttons, fast-forwarded,
 // and saves screenshots of the key moments. The bot from tests/bot.js decides what to do, from a copy of the
 // game state; this script then does it by clicking, the way a player would. Needs Playwright.
-// Usage: node othonoi/tests/play.js [path/to/index.html] [screenshot folder]
+// Usage: node tests/play.js [path/to/index.html] [screenshot folder]
 const { chromium } = require('playwright');
 const fs = require('fs');
 const path = require('path');

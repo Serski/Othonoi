@@ -1,6 +1,6 @@
 // Plays each chapter of Othonoi with bots that follow different plans, over many seeds, and reports how the week went.
 // Reads the rules straight out of the game file. No dependencies.
-// Usage: node othonoi/tests/sim.js [path/to/game.html] [games per bot]
+// Usage: node tests/sim.js [path/to/game.html] [games per bot]
 const fs = require('fs');
 const path = require('path');
 const file = process.argv[2] || path.join(__dirname, '..', 'src', 'game.html');

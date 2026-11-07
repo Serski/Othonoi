@@ -35,7 +35,7 @@ Each chapter is the same week, Monday to Sunday, and ends with the open studio o
 
 The landmarks are real: the harbour at Ammos and its school of 1912, Kalogerou (built in 1844), Chorio and the church of Agios Georgios, Imerovigli (393 m), Aspri Ammos and the cave of Calypso, the cross at Stavros, Fyki bay and the wreck of the *Sara*, Xylosermoi, Dafni, and the Kastri lighthouse (first lit in 1872, a flash every ten seconds, which the game keeps in real time at night).
 
-Dionysis also tells you about Block 2, the stretch of sea west of Corfu where Energean, ExxonMobil and HELLENiQ Energy plan an exploratory gas well, Asopos-1, in 2027, and about the cultural associations of Othonoi and Mathraki, which have opposed it. In Chapter I it can be what the installation is about, and in Chapter II a verse.
+Dionysis also tells you about Block 2, the stretch of sea west of Corfu where a group of oil and gas companies plan an exploratory gas well in 2027, and about the cultural associations of Othonoi and Mathraki, which have opposed it. In Chapter I it can be what the installation is about, and in Chapter II a verse.
 
 The islanders in the game are invented, and the game is not an official product of Kalogerou.
 
@@ -86,4 +86,4 @@ npm test
 - [Othonoi.org: the lighthouse of Othoni](https://othonoi.org/en/blog/the-lighthouse-of-othoni), and the list of Greek lighthouses, for the Kastri light.
 - [Golden Greece: Othonoi history](https://golden-greece.gr/en/islands/ionio/othonoi/history), for 1383, 1537 and the resettlement after Lepanto, which are local histories.
 - [Archontology: the Ionian Islands, 1816–1864](https://www.archontology.org/nations/greece/ionian_islands/01_polity.php).
-- On Block 2: [Offshore Technology](https://www.offshore-technology.com/news/exxonmobil-offshore-block-2-greece/), [Greek Reporter](https://greekreporter.com/2025/11/06/historic-deal-between-energean-helleniq-energy-exxonmobil-offshore-drilling-greece/), [iefimerida](https://iefimerida.gr/oikonomia/ydrogonanthrakes-ton-aprilio-i-geotrisi-sto-ionio) and [enimerosi](https://www.enimerosi.com/social/110515/oi-othonoi-kai-to-mathraki-lene-oxi-sti-geotrisi-tou-block-2) on the joint resolution of the associations of Othonoi and Mathraki.
+- On Block 2: [To Vima](https://www.tovima.com/finance/greece-signs-offshore-drilling-contract-for-ionian-block/amp/), [iefimerida](https://iefimerida.gr/oikonomia/ydrogonanthrakes-ton-aprilio-i-geotrisi-sto-ionio), and, on the joint resolution of the associations of Othonoi and Mathraki, [enimerosi](https://www.enimerosi.com/social/110515/oi-othonoi-kai-to-mathraki-lene-oxi-sti-geotrisi-tou-block-2) and [Corfu TV News](https://corfutvnews.gr/paremvasi-syllogon-mathrakiou-kai-othonon-gia-tis-eksorykseis-ydrogonanthrakon/).
